@@ -95,3 +95,32 @@
             document.getElementById("suffix").value = "";
             document.getElementById("price").value = "";
             document.getElementById("output").innerHTML = "";
+            document.getElementById("barcode").innerHTML = "";
+        }
+
+        // Prepopulate inputs with URL parameters
+        function getUrlParams() {
+            var params = {};
+            var search = window.location.search.substring(1);
+            var pairs = search.split("&");
+            for (var i = 0; i < pairs.length; i++) {
+                var pair = pairs[i].split("=");
+                if (pair[0]) {
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || "");
+                }
+            }
+            return params;
+        }
+
+        function prepopulateInputs() {
+            var params = getUrlParams();
+            document.getElementById("itemName").value = params["itemName"] || "";
+            document.getElementById("vendorId").value = params["vendorId"] || "";
+            document.getElementById("suffix").value = params["suffix"] || "";
+            document.getElementById("price").value = params["price"] || "";
+        }
+
+        prepopulateInputs();
+    </script>
+</body>
+</html>
