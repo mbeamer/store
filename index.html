@@ -13,6 +13,10 @@
                 <th><input type="text" id="itemName" name="itemName" required></th>
             </tr>
             <tr>
+                <th><label for="subtitle">Subtitle:</label></th>
+                <th><input type="text" id="subtitleDetail" name="subtitle" required></th>
+            </tr>
+            <tr>
                 <th><label for="vendorId">Vendor ID:</label></th>
                 <th><input type="text" id="vendorId" name="vendorId" required></th>
             </tr>
@@ -30,7 +34,7 @@
             </tr>            
         </table>
         <label>Tip: Omit decimals.  $4.50 should be entered as 450</label><br><br>      
-        <input type="submit" value="Generate Label">  
+        <input type="submit" onclick="generateLabel()" value="Generate Label">  
         <button onclick="printTable()">Print Label</button>
         <button onclick="clearData()">Clear</button>
         <br><br>
@@ -43,6 +47,12 @@
             align-items: center;
             text-align: center;
         }
+		#subtitle {
+            font-size: 18px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;		
+		}
     </style>
     <table>
         <tr>    
@@ -53,23 +63,31 @@
         </tr>
     </table>
     <script>
-        document.getElementById("itemForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-           
-            var itemName = document.getElementById("itemName").value;
-            var price = document.getElementById("price").value;
-            var vendorId = document.getElementById("vendorId").value;
-            var suffix = document.getElementById("suffix").value;
-           
-            var outputText = itemName + "<br>$" + (price/100).toFixed(2);
-            var barcodeText = vendorId + "-" + suffix + "-" + price;
-           
-            document.getElementById("output").innerHTML = outputText;
-           
-            JsBarcode("#barcode", barcodeText, {
-                format: "CODE128"
-            });
-        });
+		document.getElementById("itemForm").addEventListener("submit", function(event) {
+			event.preventDefault();
+		});
+			
+        function generateLabel() {               
+			var itemName = document.getElementById("itemName").value;
+			var subtitle = document.getElementById("subtitleDetail").value;
+			var price = document.getElementById("price").value;
+			var vendorId = document.getElementById("vendorId").value;
+			var suffix = document.getElementById("suffix").value;
+		   
+			if (subtitle == '') {
+				var outputText = itemName + "<br>$" + (price/100).toFixed(2);			
+			} else {
+				var outputText = itemName + "<br><div id=subtitle>" + subtitle + "</div>$" + (price/100).toFixed(2);
+			}
+			
+			var barcodeText = vendorId + "-" + suffix + "-" + price;
+		   
+			document.getElementById("output").innerHTML = outputText;
+		   
+			JsBarcode("#barcode", barcodeText, {
+				format: "CODE128"
+			});                    
+        }
 
         function printTable() {
             var printContents = "<table><tr><th>" +
@@ -91,6 +109,7 @@
 
         function clearData() {
             document.getElementById("itemName").value = "";
+			document.getElementById("subtitleDetail").value = "";
             document.getElementById("vendorId").value = "";
             document.getElementById("suffix").value = "";
             document.getElementById("price").value = "";
@@ -115,9 +134,11 @@
         function prepopulateInputs() {
             var params = getUrlParams();
             document.getElementById("itemName").value = params["itemName"] || "";
+			document.getElementById("subtitleDetail").value = params["subtitle"] || "";
             document.getElementById("vendorId").value = params["vendorId"] || "";
             document.getElementById("suffix").value = params["suffix"] || "";
             document.getElementById("price").value = params["price"] || "";
+			generateLabel()
         }
 
         prepopulateInputs();
