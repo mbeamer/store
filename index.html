@@ -1,28 +1,18 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>Label Maker</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
+    <script type="module" src="./LabelMaker.js"></script>
 </head>
 <body>
-	<style>
-		#subtitle {
-			font-size: 18px;
-			justify-content: center;
-			align-items: center;
-			text-align: center;		
-		}
-	</style>
     <h1>Label Maker</h1>
     <form id="itemForm">
         <table>
             <tr>
                 <th><label for="itemName">Item Name:</label></th>
                 <th><input type="text" id="itemName" name="itemName" required></th>
-            </tr>
-            <tr>
-                <th><label for="subtitle">Subtitle:</label></th>
-                <th><input type="text" id="subtitleDetail" name="subtitle" required></th>
             </tr>
             <tr>
                 <th><label for="vendorId">Vendor ID:</label></th>
@@ -42,57 +32,49 @@
             </tr>            
         </table>
         <label>Tip: Omit decimals.  $4.50 should be entered as 450</label><br><br>      
-        <input type="submit" onclick="generateLabel()" value="Generate Label">  
+        <input type="submit" value="Generate Label">  
         <button onclick="printTable()">Print Label</button>
         <button onclick="clearData()">Clear</button>
         <br><br>
     </form>
-    <table>
-        <tr>
-            <th><div id="output"></div></th>
-        </tr>
-        <tr>
-            <th><svg id="barcode"></svg></th>
+
+    <style>
+        #output, #barcode {
+            font-size: 36px;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+    </style>
+    <table id="fullOutput">
+        <tr>    
+            <th><div id="output"></div>
+                <svg id="barcode"></svg></th>            
         </tr>
     </table>
     <script>
-		document.getElementById("itemForm").addEventListener("submit", function(event) {
-			event.preventDefault();
-		});
+        document.getElementById("itemForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+           
+            var itemName = document.getElementById("itemName").value;
+            var price = document.getElementById("price").value;
+            var vendorId = document.getElementById("vendorId").value;
+            var suffix = document.getElementById("suffix").value;
 
-        function generateLabel() {               
-			var itemName = '<div style="font-size: x-large;justify-content: center;text-align: center;">' + document.getElementById("itemName").value + "</div>";
-			var subtitle = document.getElementById("subtitleDetail").value;
-			
-			var price = document.getElementById("price").value;
+            var outputText = itemName + "<br />" + vendorId + "-" + suffix +"  $" + (price/100).toFixed(2) + "<br />";
+            var barcodeText = vendorId + "-" + suffix + "-" + price;
 
-		    var priceElement = '<div style="font-size: x-large;justify-content: center;align-items: full;text-align: center;">' + 
-				document.getElementById("vendorId").value + "-" + document.getElementById("suffix").value + ": $" +
-				(price/100).toFixed(2) + 
-				"</div>";
-			var vendorId = document.getElementById("vendorId").value;
-			var suffix = document.getElementById("suffix").value;
-		   
-			if (subtitle == '') {
-			
-				var outputText = itemName + priceElement;
-			} else {
-				var outputText = itemName + "<div id=subtitle>" + subtitle + "</div>" + priceElement;
-			}
-			
-			var barcodeText = vendorId + "-" + suffix + "-" + price;
-		   
-			document.getElementById("output").innerHTML = outputText;
-		   
-		   	JsBarcode("#barcode", barcodeText, {
-				displayValue: false,
-				height: 50,
-				format: "CODE128"
-			}); 
-        }
+            document.getElementById("output").innerHTML = outputText;
+
+            JsBarcode("#barcode", barcodeText, {
+                format: "CODE128",
+                displayValue: false,
+                textPosition: "bottom"
+            });
+        });
 
         function printTable() {
-			var printContents = "<table><tr><th>" +
+            var printContents = "<table><tr><th>" +
                 document.getElementById("output").innerHTML +
                 "</th></tr><tr><th>" +
                 document.getElementById("barcode").outerHTML +
@@ -111,7 +93,6 @@
 
         function clearData() {
             document.getElementById("itemName").value = "";
-			document.getElementById("subtitleDetail").value = "";
             document.getElementById("vendorId").value = "";
             document.getElementById("suffix").value = "";
             document.getElementById("price").value = "";
@@ -136,11 +117,9 @@
         function prepopulateInputs() {
             var params = getUrlParams();
             document.getElementById("itemName").value = params["itemName"] || "";
-			document.getElementById("subtitleDetail").value = params["subtitle"] || "";
             document.getElementById("vendorId").value = params["vendorId"] || "";
             document.getElementById("suffix").value = params["suffix"] || "";
             document.getElementById("price").value = params["price"] || "";
-			generateLabel()
         }
 
         prepopulateInputs();
